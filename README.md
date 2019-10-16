@@ -1,7 +1,9 @@
 ## Framework used
 
 - Codeigniter2
-- Bootstrap 3.3.7
+- Semantic UI
+- jQuery 2.2.3
+- AngularJS 1.5.7
 
 ## Server Requirements
 
