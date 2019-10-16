@@ -1,0 +1,415 @@
+
+
+-- 於 article 建立 簽名檔、性別
+ALTER TABLE `article` ADD `signature` VARCHAR(100) NULL AFTER `content`;
+ALTER TABLE `article` ADD `gender` INT(1) NOT NULL AFTER `author`;
+-- 於 reply 建立作者、性別欄位
+ALTER TABLE `reply` ADD `reply_author` VARCHAR(30) NOT NULL AFTER `reply_rndcode`;
+ALTER TABLE `reply` ADD `reply_gender` INT(1) NOT NULL AFTER `reply_author`;
+
+-- 建立一張 session 的表，儲存使用者登入狀態
+CREATE TABLE `selene`.`session` ( `sId` INT NOT NULL AUTO_INCREMENT , `rndcode` VARCHAR(10) NOT NULL COMMENT '使用者隨機碼' , `timestamp` VARCHAR(32) NOT NULL COMMENT '時間戳 唯一編碼' , PRIMARY KEY (`sId`)) ENGINE = InnoDB;
+ALTER TABLE `session` ADD `ip` VARCHAR(16) NOT NULL AFTER `timestamp`, ADD `user_agent` VARCHAR(200) NULL AFTER `ip`, ADD `time` DATETIME NOT NULL AFTER `user_agent`;
+ALTER TABLE `session` CHANGE `user_agent` `user_agent` VARCHAR(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '登入的瀏覽器';
+ALTER TABLE `session` ADD INDEX(`rndcode`);
+ALTER TABLE `session` ADD INDEX(`timestamp`);
+ALTER TABLE `session` ADD `active` INT(1) NOT NULL DEFAULT '1' COMMENT '是否有效 1有效登入 0登入已過期' AFTER `time`;
+
+-- 把 member 的簽名檔、性別，複製到 article 這張表
+UPDATE article
+JOIN member ON article.author_rndcode = member.rndcode
+SET article.signature = member.signature;
+
+--把 article 的作者為 null 的簽名檔刪除
+UPDATE `article` SET `signature` = NULL WHERE `author` = '匿名';
+
+UPDATE article
+JOIN member ON article.author_rndcode = member.rndcode
+SET article.gender = member.gender;
+
+-- 將 reply_author 取代為校+系
+UPDATE reply
+JOIN member ON reply.reply_rndcode = member.rndcode
+JOIN school ON member.school = school.sc_id
+JOIN dept ON member.department = dept.de_id
+SET reply.reply_author = concat(school.sc_name, ' ', dept.de_name, '系')
+WHERE `reply_anon` = 0;
+-- 將資料庫中 reply_anon = 1 取代為校
+UPDATE reply
+JOIN member ON reply.reply_rndcode = member.rndcode
+JOIN school ON member.school = school.sc_id
+JOIN dept ON member.department = dept.de_id
+SET reply.reply_author = school.sc_name
+WHERE `reply_anon` = 1;
+
+-- 判斷原po是否為匿名，若是匿名 則顯示「匿名」，否則，顯示校系。
+UPDATE reply
+JOIN member ON reply.reply_rndcode = member.rndcode
+JOIN school ON member.school = school.sc_id
+JOIN dept ON member.department = dept.de_id
+JOIN article ON reply.reply_rndcode = article.author_rndcode
+SET reply.reply_author = if (article.author =  '匿名', '匿名', concat(school.sc_name, ' ', dept.de_name, '系') )
+WHERE (reply.reply_rndcode = article.author_rndcode AND article.id = reply.reply_post);
+
+
+UPDATE reply
+JOIN member ON reply.reply_rndcode = member.rndcode
+SET reply.reply_gender = member.gender;
+
+
+-- --------------------------------
+-- 更改資料編碼 (先跑一次下面這句，產生語句)
+
+-- SELECT CONCAT("ALTER TABLE ", TABLE_NAME," COLLATE utf8mb4_general_ci") AS    ExecuteTheString
+-- FROM INFORMATION_SCHEMA.TABLES
+-- WHERE TABLE_SCHEMA="selene"
+-- AND TABLE_TYPE="BASE TABLE"
+
+-- 再把產生出來的語句放進資料庫執行
+ALTER TABLE article COLLATE utf8mb4_general_ci;
+ALTER TABLE badge COLLATE utf8mb4_general_ci;
+ALTER TABLE bug COLLATE utf8mb4_general_ci;
+ALTER TABLE dept COLLATE utf8mb4_general_ci;
+ALTER TABLE discuss COLLATE utf8mb4_general_ci;
+ALTER TABLE discuss_href COLLATE utf8mb4_general_ci;
+ALTER TABLE discuss_p COLLATE utf8mb4_general_ci;
+ALTER TABLE forget_psw COLLATE utf8mb4_general_ci;
+ALTER TABLE friend COLLATE utf8mb4_general_ci;
+ALTER TABLE god COLLATE utf8mb4_general_ci;
+ALTER TABLE god_join COLLATE utf8mb4_general_ci;
+ALTER TABLE god_like COLLATE utf8mb4_general_ci;
+ALTER TABLE likes COLLATE utf8mb4_general_ci;
+ALTER TABLE manager COLLATE utf8mb4_general_ci;
+ALTER TABLE member COLLATE utf8mb4_general_ci;
+ALTER TABLE oth_sms COLLATE utf8mb4_general_ci;
+ALTER TABLE reply COLLATE utf8mb4_general_ci;
+ALTER TABLE reply_likes COLLATE utf8mb4_general_ci;
+ALTER TABLE report COLLATE utf8mb4_general_ci;
+ALTER TABLE report_rnd COLLATE utf8mb4_general_ci;
+ALTER TABLE rnd_friends COLLATE utf8mb4_general_ci;
+ALTER TABLE school COLLATE utf8mb4_general_ci;
+ALTER TABLE session COLLATE utf8mb4_general_ci;
+ALTER TABLE setting COLLATE utf8mb4_general_ci;
+ALTER TABLE shop COLLATE utf8mb4_general_ci;
+ALTER TABLE sms COLLATE utf8mb4_general_ci;
+ALTER TABLE track COLLATE utf8mb4_general_ci;
+ALTER TABLE wrn COLLATE utf8mb4_general_ci;
+
+
+update member set last_seen = '2000-01-01' where last_seen < '2004-01-01';
+update member set birthday = '2000-01-01' where birthday < '1950-01-01';
+update wrn set wrn_read_time = '2000-01-01' where wrn_read_time < '2004-01-01';
+
+ALTER TABLE selene.article CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.badge CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.bug CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.dept CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.discuss CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.discuss_href CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.discuss_p CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.forget_psw CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.friend CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.god CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.god_join CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.god_like CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.likes CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.manager CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.member CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.oth_sms CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.reply CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.reply_likes CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.report CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.report_rnd CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.rnd_friends CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.school CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.session CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.setting CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.shop CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.sms CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.track CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE selene.wrn CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+-- ---------------------------------
+
+-- member 是否顯示姓名，更名+預設為0(不隱藏) 1=隱藏，以及 not null
+ALTER TABLE `member` CHANGE `nickname` `nameIsHide` INT(1) NOT NULL DEFAULT '0' COMMENT '是否隱藏姓名';
+-- 將 nameIsHide 為 null 的，全部設定為 0;
+update member set nameIsHide = '0' where nameIsHide IS NULL;
+
+
+-- 把 friend 的 invite 及 invitee 建立索引
+ALTER TABLE `friend` ADD INDEX(`invite`);
+ALTER TABLE `friend` ADD INDEX(`invitee`);
+ALTER TABLE `reply` ADD INDEX(`reply_post`);
+
+
+-- reply_likes_post (點哪篇文章) 型態變更
+DELETE FROM `reply_likes` WHERE reply_likes_post LIKE '%-%';
+ALTER TABLE `reply_likes` CHANGE `reply_likes_post` `reply_likes_post` INT NOT NULL COMMENT '點哪篇文章';
+
+-- reply_likes_rndcode、回覆樓 型態變更
+ALTER TABLE `reply_likes` CHANGE `reply_likes_rndcode` `reply_likes_rndcode` VARCHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '誰點';
+ALTER TABLE `reply_likes` CHANGE `reply_likes_post_f` `reply_likes_post_f` INT NOT NULL;
+
+
+-- track who 更改型態
+ALTER TABLE `track` CHANGE `tr_who` `tr_who` VARCHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '誰追蹤';
+ALTER TABLE `track` CHANGE `tr_post` `tr_post` INT NOT NULL COMMENT '追蹤文章';
+-- 建立索引
+ALTER TABLE `track` ADD INDEX(`tr_who`);
+ALTER TABLE `track` ADD INDEX(`tr_post`);
+
+
+-- 刪除 article.time 的索引
+ALTER TABLE article DROP INDEX time;
+ALTER TABLE article DROP INDEX auth_rnd;
+
+
+-- 刪除 shop 裡面的 sh_code 欄位
+ALTER TABLE `shop` DROP `sh_code`;
+
+-- 將商店圖片的 svg
+UPDATE `shop` SET `sh_img` = REPLACE(`sh_img`, '.png', '.svg');
+
+
+-- like 的 likes_rndcode 加入索引
+ALTER TABLE `likes` ADD INDEX(`likes_rndcode`);
+
+
+-- 在 article 建立一個 reply_count 的欄位
+ALTER TABLE `article` ADD `reply_count` INT NOT NULL AFTER `like_count`;
+-- 將 reply 的回應數，加回 article.reply_count
+update article
+set reply_count =
+(select count(*) from reply
+where reply.reply_post = article.id);
+
+-- 刪除 article.like_count 的索引
+ALTER TABLE article DROP INDEX like_count;
+
+
+-- [2016-06-13] 將 article 的 line_count/reply_count/art_del/top 預設為 0
+--				將 reply 的 reply_like_count/reply_del 預設為 0
+ALTER TABLE `article`
+CHANGE `like_count` `like_count` INT(11) NOT NULL DEFAULT '0' COMMENT '讚數',
+CHANGE `reply_count` `reply_count` INT(11) NOT NULL DEFAULT '0',
+CHANGE `art_del` `art_del` INT(1) NOT NULL DEFAULT '0' COMMENT '是否被移除',
+CHANGE `top` `top` INT(1) NOT NULL DEFAULT '0' COMMENT '置頂文章';
+
+ALTER TABLE `reply`
+CHANGE `reply_like_count` `reply_like_count` INT(11) NOT NULL DEFAULT '0' COMMENT '讚數',
+CHANGE `reply_del` `reply_del` INT(11) NOT NULL DEFAULT '0' COMMENT '是否被移除';
+
+-- [2016-06-25] 建立一個 archive 的表，給追蹤文章使用
+CREATE TABLE `selene`.`archive` ( `arc_id` INT NOT NULL AUTO_INCREMENT COMMENT '編號' , `arc_post` INT NOT NULL COMMENT '追蹤文章' , `arc_rndcode` VARCHAR(10) NOT NULL COMMENT '誰追蹤' , `arc_time` DATETIME NOT NULL COMMENT '時間' , PRIMARY KEY (`arc_id`), INDEX (`arc_post`)) ENGINE = InnoDB;
+ALTER TABLE `archive` ADD INDEX(`arc_rndcode`);
+
+--				在 reply_lies 建立一欄叫 reply_likes_replyid 存回應的 id
+ALTER TABLE `reply_likes` ADD `reply_likes_replyid` INT NOT NULL AFTER `reply_likes_post_f`, ADD INDEX (`reply_likes_replyid`);
+
+
+--				更新 reply_likes 的 reply_like_count_f 為 回應 id
+UPDATE reply_likes set reply_likes.reply_likes_replyid =
+
+IF (
+    (SELECT min(reply.id) FROM reply
+    WHERE
+        reply_likes.reply_likes_post = reply.reply_post AND
+        reply_likes.`reply_likes_post_f` = reply.reply_f )  IS NULL, "0",
+    (SELECT min(reply.id) FROM reply
+    WHERE
+        reply_likes.reply_likes_post = reply.reply_post AND
+        reply_likes.`reply_likes_post_f` = reply.reply_f )
+);
+--				reply_likes_post_f 允許空值
+ALTER TABLE `reply_likes` CHANGE `reply_likes_post_f` `reply_likes_post_f` INT(11) NULL;
+
+--				reply_likes_rndcode 加入索引
+ALTER TABLE `reply_likes` ADD INDEX(`reply_likes_rndcode`);
+
+-- [2016-06-30] 將 article 文章的時間欄位，預設為現在時間 CURRENT_TIMESTAMP
+ALTER TABLE `article` CHANGE `time` `time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '發表時間';
+
+-- [2016-08-17] 將 member d_acc(短帳號)欄位預設為 NULL ，並將當前無設定短帳號之會員一並改成 NULL
+ALTER TABLE `member` CHANGE `d_acc` `d_acc` VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '副帳號';
+UPDATE member SET d_acc = NULL WHERE d_acc = "";
+
+-- [2016-08-18] 建立學校 sc_blood(血量) 欄位 (正式版上線不需)
+ALTER TABLE `school` ADD `sc_blood` INT(3) NOT NULL COMMENT '血量' AFTER `sc_mark`;
+
+ALTER TABLE `god_like` CHANGE `gl_itemuser` `gl_itemuser` INT(2) NOT NULL COMMENT '參賽者';
+
+-- [2016-09-04] 將 session 的 timestamp 欄位改為 128 字元，大小寫敏感
+ALTER TABLE `session` CHANGE `timestamp` `timestamp` VARCHAR(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '時間戳 唯一編碼';
+
+
+-- [2016-09-05] 將星座及生日及最後抽卡日欄位設為可空值
+ALTER TABLE `member` CHANGE `constellation` `constellation` INT(2) NULL COMMENT '星座', CHANGE `birthday` `birthday` DATE NULL COMMENT '生日';
+ALTER TABLE `member` CHANGE `last_seen` `last_seen` DATE NULL COMMENT '最後抽卡日';
+
+-- [2016-09-05] 將 sc_email 欄位字首增加 @
+UPDATE school SET sc_email = CONCAT('@', sc_email);
+
+
+-- [2016-09-09] 刪除 rnd_friends.rnd_be_add_user_ck (正式版不用)
+ALTER TABLE `rnd_friends` DROP `rnd_be_add_user_ck`;
+
+-- [2016-09-10] sms 私訊傳送者與接收者 建立索引
+ALTER TABLE `sms` ADD INDEX(`sender`);
+ALTER TABLE `sms` ADD INDEX(`receiver`);
+
+-- [2016-09-12] session 新增一個 expire 的欄位，記錄 session 過期時間
+ALTER TABLE `session` ADD `expire` DATETIME NOT NULL AFTER `active`;
+
+-- [2016-09-17] 新增追蹤是否已讀欄位 1 為看過
+ALTER TABLE `track` ADD `tr_check` INT(1) NOT NULL COMMENT '是否看過 1 為看過' AFTER `tr_time`;
+
+
+-- [2016-09-27] 丟棄 report 資料表的檢舉樓與網址；加入 r_date 儲存時間；r_report_user 加入索引
+ALTER TABLE `report`
+  DROP `r_rd_reason`,
+  DROP `r_url`;
+
+ALTER TABLE `report` ADD `r_date` DATETIME NOT NULL AFTER `r_reason`;
+
+ALTER TABLE `report` ADD INDEX(`r_report_user`);
+
+
+-- 				新增 report_reply 資料表
+CREATE TABLE `report_reply` (
+  `rp_id` int(11) PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '編號',
+  `rp_report_user` varchar(15) NOT NULL COMMENT '檢舉者',
+  `rp_report_reply` varchar(20) NOT NULL COMMENT '檢舉回應',
+  `rp_reason` varchar(100) NOT NULL COMMENT '原因',
+  `rp_date` datetime NOT NULL,
+  `rp_handle` int(11) NOT NULL COMMENT '是否處理'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE `report_reply` ADD INDEX(`rp_report_user`);
+
+-- 將 sms, friend 改為 InnoDB
+ALTER TABLE `sms` ENGINE = INNODB;
+ALTER TABLE `friend` ENGINE = INNODB;
+
+
+-- 將 manager 的欄位型態作調整
+ALTER TABLE `manager` CHANGE `useremail` `useremail` VARCHAR(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '校園信箱';
+ALTER TABLE `manager` CHANGE `nickname` `nickname` VARCHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '綽號';
+ALTER TABLE `manager` CHANGE `mg_rndcode` `mg_rndcode` VARCHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '管理員隨機號';
+ALTER TABLE `manager` CHANGE `password` `password` VARCHAR(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '密碼';
+
+
+-- 將管理員的 nickname 更新
+UPDATE article
+JOIN manager ON article.author_rndcode = manager.mg_rndcode
+SET article.author = manager.nickname, article.gender = 9;
+
+UPDATE reply
+JOIN manager ON reply.reply_rndcode = manager.mg_rndcode
+SET reply.reply_author = manager.nickname, reply.reply_gender = 9;
+
+-- 更新 discuss 表 板塊名稱
+UPDATE discuss SET di_code = 'photography' WHERE di_id = 41;
+
+-- 新增學校資料
+INSERT INTO `school` (`sc_id`, `sc_code`, `sc_mt_dis`, `sc_name`, `sc_abb`, `sc_email`, `sc_ex`, `sc_url`, `sc_mark`, `sc_blood`) VALUES (NULL, '50', '77', '中原大學', 'cycu', '@cycu.edu.tw', 's+學號@cycu.edu.tw', 'https://mail.cycu.edu.tw/indexi2.html', '', '500');
+INSERT INTO `selene`.`school` (`sc_id`, `sc_code`, `sc_mt_dis`, `sc_name`, `sc_abb`, `sc_email`, `sc_ex`, `sc_url`, `sc_mark`, `sc_blood`) VALUES (NULL, '51', '78', '元智大學', 'yzu', '@mail.yzu.edu.tw', 's+學號@mail.yzu.edu.tw', 'https://webmail04.yzu.edu.tw/owa', '', '500');
+INSERT INTO `school` (`sc_id`, `sc_code`, `sc_mt_dis`, `sc_name`, `sc_abb`, `sc_email`, `sc_ex`, `sc_url`, `sc_mark`, `sc_blood`) VALUES (NULL, '52', '79', '交通大學', 'nctu', '@nctu.edu.tw', '自訂+@nctu.edu.tw', 'https://fwebmail.nctu.edu.tw/roundcube/', '請至 http://smtp.cc.nctu.edu.tw/~ccweb/apply.php 申請', '500');
+
+-- 所有學校血量歸500
+UPDATE school SET `sc_blood` = '500';
+
+-- 新增討論板板塊
+INSERT INTO `discuss` (`di_id`, `di_numb`, `di_code`, `di_sch`, `di_name`) VALUES (NULL, '77', 'cycu', '1', '中原大學');
+INSERT INTO `discuss` (`di_id`, `di_numb`, `di_code`, `di_sch`, `di_name`) VALUES (NULL, '78', 'yzu', '1', '元智大學');
+INSERT INTO `discuss` (`di_id`, `di_numb`, `di_code`, `di_sch`, `di_name`) VALUES (NULL, '79', 'nctu', '1', '交通大學');
+INSERT INTO `discuss` (`di_id`, `di_numb`, `di_code`, `di_sch`, `di_name`) VALUES (NULL, '80', 'beauty', '0', '彩妝');
+INSERT INTO `discuss` (`di_id`, `di_numb`, `di_code`, `di_sch`, `di_name`) VALUES (NULL, '81', 'fashion', '0', '時尚');
+INSERT INTO `discuss` (`di_id`, `di_numb`, `di_code`, `di_sch`, `di_name`) VALUES (NULL, '82', 'fantasy', '0', '創作文');
+INSERT INTO `discuss` (`di_id`, `di_numb`, `di_code`, `di_sch`, `di_name`) VALUES (NULL, '83', 'star', '0', '追星');
+INSERT INTO `discuss` (`di_id`, `di_numb`, `di_code`, `di_sch`, `di_name`) VALUES (NULL, '84', 'moto', '0', 'Moto');
+INSERT INTO `discuss` (`di_id`, `di_numb`, `di_code`, `di_sch`, `di_name`) VALUES (NULL, '85', 'technology', '0', '科技');
+INSERT INTO `discuss` (`di_id`, `di_numb`, `di_code`, `di_sch`, `di_name`) VALUES (NULL, '86', 'selene', '0', 'SELENE');
+
+-- 新增系所資料
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '523', '奈米科技學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '524', '機械工程學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '525', '生物環境工程學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '526', '電機資訊學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '527', '工業與系統工程學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '528', '國際經營與貿易學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '529', '國際商學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '530', '商業巨量資料管理');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '531', '財經法律學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '532', '工程法律學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '533', '室內設計學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '534', '商業設計學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '535', '景觀學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '536', '文創設計學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '537', '設計學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '538', '教育學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '539', '應用外國語文學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '540', '應用華語文學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '541', '數位音樂應用學');
+
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '542', '製造工程與管理學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '543', '生物科技與工程學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '544', '化學工程與材料科學學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '545', '工業工程與管理學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '546', '先進能源學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '547', '財務金融暨會計學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '548', '資訊社會學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '549', '生物與醫學資訊學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '550', '社會暨政策科學學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '551', '文化產業與文化政策學');
+
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '552', '電信工程');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '553', '電機與控制工程');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '554', '顯示科技');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '555', '生醫工程');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '556', '電機學院產業研發');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '557', '資訊科學與工程');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '558', '多媒體工程');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '559', '網路工程');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '560', '光電系統');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '561', '影像與生醫光電');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '562', '照明與能源光電');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '563', '平面顯示技術');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '564', '加速器光源科技與應用');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '565', '聲音與音樂創意科技');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '566', '奈米科學及工程學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '567', '電子物理學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '568', '數學建模與科學');
+
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '569', '分子科學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '570', '分子醫學與生物工程');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '571', '生物資訊及系統生物');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '572', '運輸與物流管理學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '573', '管理科學學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '574', '交通運輸');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '575', '資訊管理與財務金融');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '576', '外國語文學系暨外國文學與語言學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '577', '英語教學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '578', '應用藝術');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '579', '社會與文化');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '580', '人文社會學系暨族群與文化');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '581', '傳播與科技學');
+INSERT INTO `dept` (`de_id`, `de_code`, `de_name`) VALUES (NULL, '582', '科技法律');
+
+-- 修改學校桃創名稱
+UPDATE `school` SET `sc_name` = '南亞技術學院' WHERE `school`.`sc_id` = 21;
+UPDATE `discuss` SET `di_name` = '南亞技院' WHERE `discuss`.`di_id` = 45;
+
+-- 修改 fp_enable 忘記密碼金鑰為 128字元，區分大小寫；增加有效期限欄位；fp_rndcode 加入索引
+ALTER TABLE `forget_psw` CHANGE `fp_enable` `fp_enable` VARCHAR(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '金鑰';
+ALTER TABLE `forget_psw` ADD `fp_expire` DATETIME NOT NULL COMMENT '金鑰期限' AFTER `fp_enable`;
+ALTER TABLE `forget_psw` ADD INDEX(`fp_rndcode`);
+
+
+-- rnd_friends 新增一欄 rnd_his
+ALTER TABLE `rnd_friends` ADD `rnd_his` TIME NOT NULL COMMENT '時間';
+
+
+-- rnd_friends 加索引
+ALTER TABLE `rnd_friends` ADD INDEX(`rnd_add_user`);
+ALTER TABLE `rnd_friends` ADD INDEX(`rnd_be_add_user`);

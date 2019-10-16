@@ -1,0 +1,11 @@
+*/config/development
+*/logs/log-*.php
+!*/logs/index.html
+*/cache/*
+!*/cache/index.html
+!*/cache/.htaccess
+*/application/config/database.php
+database.php
+.DS_Store
+node_modules/*
+build/*

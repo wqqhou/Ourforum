@@ -1,0 +1,464 @@
+/*
+* Noto Sans TC (Chinese_traditional) http://www.google.com/fonts/earlyaccess
+*/
+@font-face {
+    font-family: 'Noto Sans TC';
+    font-style: normal;
+    font-weight: 400;
+    src: url(//fonts.gstatic.com/ea/notosanstc/v1/NotoSansTC-Regular.woff2) format('woff2'),
+         url(//fonts.gstatic.com/ea/notosanstc/v1/NotoSansTC-Regular.woff) format('woff'),
+         url(//fonts.gstatic.com/ea/notosanstc/v1/NotoSansTC-Regular.otf) format('opentype');
+}
+
+mark {
+	background-color: #ADFFCF;
+}
+
+#editorjs p {
+	font-size: 16px;
+}
+
+/* Sidebars use a special fix for iOS Start */
+html.ios {
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+html.ios,
+html.ios body {
+  height: initial !important;
+}
+/* Sidebars use a special fix for iOS End */
+
+body {
+	  background-color: #F7F7F7;
+	  max-height: 100vh;
+}
+
+* {
+    font-family: 'Noto Sans TC', serif !important;
+}
+
+i.icon, .ui.sortable.table thead th:after {
+    font-family: 'Icons' !important;
+}
+
+body > .loginform {
+	  height: 100%;
+}
+.text-italic {
+	font-style: italic;
+}
+.ui.menu .item img.logo {
+	padding: 10px 0;
+}
+.ui.grid+.grid {
+	margin-top: 0rem !important;
+}
+.ui.fixed.menu+.ui.grid.container {
+	padding-top: 7rem !important;
+}
+.ui.footer.segment {
+	margin: 5em 0em 0em;
+	padding: 5em 0em;
+}
+.ui.menu .item > img:not(.ui) {
+    display: inline-block;
+    vertical-align: middle;
+    margin: -.3em 0;
+    width: 4em;
+}
+
+@media (min-width:992px) {
+    .desktop-only {
+        display:run-in !important;
+    }
+}
+
+/* mobile & desktop RWD */
+@media (max-width: 991px) {
+    .mobile-only {
+        display:run-in !important;
+    }
+
+    .desktop-only {
+        display:none !important;
+    }
+}
+
+/* 文章列表 pointer */
+.articleListItem{
+	cursor: pointer;
+}
+.articleListItem:hover {
+	background-color: #FCFCFC;
+}
+
+.articleListItem .extra.content {
+	border-top: 0px solid rgba(0, 0, 0, .05)!important;
+}
+
+.pointer:hover {
+	cursor: pointer;
+}
+
+
+/* 文章列表、回應列表性別圖縮小 */
+#display_article table img,
+#article_reply .avatar {
+	width: 20px;
+}
+#article_content_container {
+	width: 100vh;
+}
+
+/* 文章內容 捲軸 */
+#article_modal {
+	height: 100vh !important;
+	/*overflow-y: auto;*/
+}
+/* 文章內容 回應 作者前樓數*/
+#article_reply .ui.header .ui.label {
+	margin-left: 0em;
+}
+.ui.segment.segmentfooter {
+	padding: 10px 1em;
+	border-top: none;
+}
+
+#article_signature {
+	margin-top: 3em;
+	border-top: 3px solid rgba(0, 0, 0, .05)!important;
+}
+/*文章modal 貼齊上下*/
+.modals.dimmer .ui.scrolling.modal {
+	margin: 0 auto !important;
+}
+
+/*  */
+.bg1 {
+	background-image: url(img/bg1.png) !important;
+}
+
+.bg2 {
+    background-image: url(img/bg2.png) !important;
+}
+
+/* 我的名片個人照片背景圓角 */
+.radius-4 {
+	border-radius: 4px;
+}
+
+/* 我的名片個人資料th */
+.table-th {
+	color: #754F44;
+}
+
+.ui.form textarea {
+	resize:none !important;
+}
+
+/* 我的朋友 照片正方形裁切*/
+.image-square {
+    width: 100%;
+    height: 0px;
+    padding-bottom: 100%;
+    background-repeat: no-repeat;
+    -webkit-background-size: cover;
+    background-size: cover;
+    -webkit-background-origin: padding-box;
+    background-origin: padding-box;
+	background-position: top center;
+}
+
+#newpost-select-pic{
+	position:absolute;
+	bottom:10px;
+	right:10px;
+}
+
+#problem-select-pic {
+	position:absolute;
+	bottom: 4px;
+	right: -60px;
+}
+
+#reply-bar{
+	position:fixed;
+	right:0;
+	bottom:0;
+	border: 1px solid #EEE;
+	z-index: 9999;
+}
+
+.reply_like_btn {
+	cursor: pointer;
+}
+
+.div_centered {
+	margin: 20px auto;
+}
+
+/* 攻城戰學校選單 */
+.siege_school_list{
+	max-height:150px;
+	overflow-y:auto;
+}
+
+.search-school-option{
+	cursor: crosshair;
+}
+
+/* 參加競賽選擇作品 */
+#join-info-choose-file, #newpost-choose-image, #problem-choose-image, .talk-choose-image, .talk-choose-image-phone, #reply-choose-image {
+	height: 0;
+	width: 0;
+}
+
+/* 私訊回覆框 */
+.talk-content {
+	height: 100px;
+	overflow-y: auto;
+}
+
+#sms{
+	max-height: 300px;
+}
+
+/* bug 回報 - 問題描述 */
+#content {
+	height: 200px;
+	overflow-y: auto;
+}
+
+#talk-list {
+    height: 50vh;
+    overflow: auto;
+}
+
+#article-newpost-view {
+    width: 100px;
+
+    overflow-y: auto;
+    margin-top:24px;
+    background-color: red;
+}
+
+/* 改變 focus 邊框顏色 */
+#post-content:focus, #problem-content:focus, .talk-content:focus, .reply-content:focus {
+	outline: none !important;
+    border: 1px solid #85B7D9;
+}
+
+/* content editable 仿 textarea */
+.div-textarea {
+	white-space: pre;
+	background-color: #FFFFFF;
+	min-height: 6em;
+	max-height: 12em;
+	overflow-y: scroll;
+	outline: none !important;
+	border-radius: 4px;
+	padding: 4px;
+}
+.div-textarea:focus {
+	border: 1px solid #85B7D9;
+}
+
+[contentEditable=plaintext-only]:empty:not(:focus):before{
+	content:attr(placeholder)
+}
+
+/* reply fadeout background color */
+.lightyellow {
+	background-color:#FAF6DE !important;
+}
+
+.gentleman-red {
+	background-color: #DC3D24 !important;
+}
+
+.lightblack {
+	background-color: #363A42 !important;
+}
+
+.darkred {
+	background-color: #CC2936 !important;
+}
+
+.darkgreen {
+	background-color: #037365 !important;
+}
+
+/* reply like button background color */
+.lightblue {
+	background-color: #F3F4F5 !important;
+}
+
+/* Theme color */
+.nav-blue {
+	background-color: #235789 !important;
+}
+
+/* 防止深色背景滑鼠移過後字變黑色 */
+.notinverted {
+	color: #FFFFFF !important;
+	font-weight: 100 !important;
+}
+
+.href-hover-dark {
+    color: #333333 !important;
+}
+
+.navbar-bottom {
+	margin-left: 0px !important;
+	margin-top: 0px !important;
+}
+
+/* 文章熱門程度 底色 */
+.hot-layer-1 { background-color: #FCF9F9 !important }
+.hot-layer-2 { background-color: #FCF4F4 !important }
+.hot-layer-3 { background-color: #FCEFEF !important }
+.hot-layer-4 { background-color: #FCEAEA !important }
+.hot-layer-5 { background-color: #FCE5E5 !important }
+
+/* female pink */
+.female-pink {
+    background-color: #E5446D !important;
+}
+
+/* 已經喜歡 */
+.islike-pink {
+    color: #E5446D !important;
+}
+
+.islike-pink-bg {
+    background-color: #C1292E !important;
+    color: #EEE !important;
+    font-weight: 500 !important;
+}
+
+.isarchive-green-bg {
+	background-color: #037365 !important;
+    color: #EEE !important;
+    font-weight: 500 !important;
+}
+
+/* 標題與作者間隔 */
+.art-interval {
+    padding-top:10px !important;
+}
+
+/* 喜歡數、回覆數顏色 */
+.art-info-color {
+    color: #999 !important;
+    font-size: 12px !important;
+}
+
+/* 文章內回覆數 */
+.reply_likecount{
+    margin-left: -5px;
+    font-size: 15px;
+}
+
+.art-class {
+    font-size: 15px !important;
+}
+
+/*#article-menu {
+    background-color: #235789;
+    border-radius: 10px;
+    padding: 5px;
+}*/
+
+/*.hot-layer-1 { background-color: #FCFCF7 !important }
+.hot-layer-2 { background-color: #FCFCEF !important }
+.hot-layer-3 { background-color: #FCFCE3 !important }
+.hot-layer-4 { background-color: #FFFCDD !important }
+.hot-layer-5 { background-color: #FFFACC !important }*/
+
+/* 我的回應底色 */
+.my-reply { background-color: #FAF6DE !important }
+
+.article_author {
+	margin-top:10px;
+}
+
+.scrollbar-black::-webkit-scrollbar-track {
+	background-color: #FFFFFF;
+}
+
+.scrollbar-black::-webkit-scrollbar {
+	width: 3px;
+	background-color: #FFFFFF;
+}
+
+.scrollbar-black::-webkit-scrollbar-thumb {
+	background-color: #BBB;
+}
+
+.item:hover {
+	cursor: pointer;
+}
+
+.talk-content {
+	margin-top: 10px;
+}
+
+/* 發文內容格式化 */
+.post-content {
+    white-space: pre;
+    height: 500px;
+	overflow-y: auto;
+}
+
+/* 卡片選擇光暈 */
+.hola{
+    -webkit-box-shadow: 0 0 15px #f3d42e;
+    -moz-box-shadow: 0 0 15px #f3d42e;
+    box-shadow: 0 0 80px #f3d42e;
+}
+
+/* 文章字體 */
+.article-content, .reply-content {
+    font-size: 18px;
+    line-height: 30px;
+    color: #444;
+}
+
+#article_author, #article_time {
+    font-size: 15px;
+    color: #444;
+    font-weight: 300;
+}
+
+/* Halloween Style */
+
+.notice-icon {
+    width: 18px;
+    margin-right: 5px;
+}
+
+.halloween-orange {
+    background-color: #F7B239 !important;
+    color: #333 !important;
+}
+
+.halloween-navbar {
+    background-color: #412559 !important;
+}
+
+/* Halloween Style END */
+
+/* Hide AngularJS Expression on page load*/
+[ng\:cloak],[ng-cloak],.ng-cloak {
+	display:none !important
+}
+
+#article_container {
+	margin-top: 50px;	
+}
+
+#suggest-btn {
+	width: 100px;
+}

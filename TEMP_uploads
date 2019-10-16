@@ -1,0 +1,23 @@
+public function save_picture_data($upload_data = array())
+
+
+			$data = array(
+				'mPicture' => $upload_data['file_name']
+			);
+			// $data = array(
+			// 	'mPicture' => $upload_data['file_name']
+			// );
+			//
+			// $mId = $this->uri->segment(3, 0);
+			// $this->db->where('mId', $mId);
+			// $this->db->update('member', $data);
+
+			$mId = $this->uri->segment(3, 0);
+			$this->db->where('mId', $mId);
+			$this->db->update('member', $data);
+
+			return TRUE;
+			// $this->s3->putObject('./uploads/'.$upload_data['file_name'], 'statics.selene.tw', $upload_data['file_name'], 'public-read', array(), array('Content-Type' => $upload_data['file_type']));
+			$putObject = $this->s3->putObject(S3::inputFile($upload_data['full_path']), 'statics.selene.tw', 'userimg/'.$upload_data['file_name'], 'public-read', array(), array('Content-Type' => $upload_data['file_type']));
+			@unlink($upload_data['full_path']);
+			// return TRUE;
